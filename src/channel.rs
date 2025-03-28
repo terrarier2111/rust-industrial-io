@@ -536,8 +536,9 @@ impl Channel {
         Ok(v)
     }
 
-    /// Skips `n` elements
-    pub fn skip_elements(&self, buf: &Buffer, n: usize) -> Result<()> {
+    /// Tries skipping up to `n` elements.
+    /// Returns how many elements were actually skipped.
+    pub fn try_skip_elements(&self, buf: &Buffer, n: usize) -> Result<usize> {
         let sz_item = self.data_format().byte_length();
         let sz_in = n * sz_item;
         let mut v = vec![0; sz_in];
@@ -548,7 +549,7 @@ impl Channel {
             return Err(Error::BadReturnSize); // This should never happen.
         }
 
-        Ok(())
+        Ok(sz)
     }
 
     /// Convert and multiplex the samples of a given channel.
