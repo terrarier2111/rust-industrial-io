@@ -536,6 +536,21 @@ impl Channel {
         Ok(v)
     }
 
+    /// Skips `n` elements
+    pub fn skip_elements(&self, buf: &Buffer, n: usize) -> Result<()> {
+        let sz_item = self.data_format().byte_length();
+        let sz_in = n * sz_item;
+        let mut v = vec![0; sz_in];
+        let sz =
+            unsafe { ffi::iio_channel_read_raw(self.chan, buf.buf, v.as_mut_ptr().cast(), sz_in) };
+
+        if sz > sz_in {
+            return Err(Error::BadReturnSize); // This should never happen.
+        }
+
+        Ok(())
+    }
+
     /// Convert and multiplex the samples of a given channel.
     /// Returns the number of items written.
     pub fn write<T>(&self, buf: &Buffer, data: &[T]) -> Result<usize>
